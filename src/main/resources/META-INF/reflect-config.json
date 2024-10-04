@@ -1,0 +1,8 @@
+[
+  {
+    "name": "io.micronaut.data.intercept.annotation.DataMethod$OperationType",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  }
+]

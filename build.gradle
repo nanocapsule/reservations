@@ -1,0 +1,92 @@
+plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.micronaut.application") version "4.4.2"
+    id("com.diffplug.spotless") version "6.23.3"
+    id("io.micronaut.aot") version "4.4.2"
+}
+
+version = "0.1"
+group = "com.hostels"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("io.micronaut:micronaut-http-validation")
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
+    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+    implementation("io.micronaut.data:micronaut-data-jpa")
+    implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
+    implementation("io.micronaut.sql:micronaut-hibernate-jpa")
+    implementation("io.micronaut:micronaut-jackson-databind")
+    implementation("io.micronaut.aws:micronaut-aws-lambda-events-serde")
+    implementation("io.micronaut.aws:micronaut-function-aws")
+    implementation("io.micronaut.crac:micronaut-crac")
+    implementation("io.micronaut.serde:micronaut-serde-jackson")
+    implementation("io.micronaut.aws:micronaut-function-aws-custom-runtime")
+    implementation("jakarta.annotation:jakarta.annotation-api")
+    implementation("mysql:mysql-connector-java")
+    implementation("io.micronaut:micronaut-http-client-jdk")
+    compileOnly("io.micronaut:micronaut-http-client-jdk")
+    runtimeOnly("ch.qos.logback:logback-classic")
+    runtimeOnly("org.yaml:snakeyaml")
+    compileOnly("org.projectlombok:lombok")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+application {
+    mainClass = "com.hostels.FunctionLambdaRuntime"
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("21")
+    targetCompatibility = JavaVersion.toVersion("21")
+}
+
+graalvmNative.toolchainDetection = false
+
+micronaut {
+    runtime("lambda_provided")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("hostels.micronaut.*")
+    }
+    aot {
+        // Please review carefully the optimizations enabled below
+        // Check https://micronaut-projects.github.io/micronaut-aot/latest/guide/ for more details
+        optimizeServiceLoading = false
+        convertYamlToJava = false
+        precomputeOperations = true
+        cacheEnvironment = true
+        optimizeClassLoading = true
+        deduceEnvironment = true
+        optimizeNetty = true
+        replaceLogbackXml = true
+    }
+}
+
+graalvmNative {
+    binaries {
+        main {
+            buildArgs.add('--initialize-at-build-time=io.micronaut.data.intercept.annotation.DataMethod$OperationType,io.micronaut.data.model.JsonDataType')
+        }
+    }
+}
+
+
+
+tasks.named("dockerfileNative") {
+    baseImage = "amazonlinux:2023"
+    jdkVersion = "21"
+    args(
+            "-XX:MaximumHeapSizePercent=80",
+            "-Dio.netty.allocator.numDirectArenas=0",
+            "-Dio.netty.noPreferDirect=true"
+    )
+}
+
+
