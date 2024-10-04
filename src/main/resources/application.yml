@@ -1,0 +1,27 @@
+#Tue Aug 27 04:13:14 UTC 2024
+micronaut:
+  application:
+    name: reservations
+
+jpa:
+  default:
+    compile-time-hibernate-proxies: true
+    properties:
+      hibernate:
+        physical_naming_strategy: 'org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl'
+        hbm2ddl:
+          auto: validate
+        show_sql: false
+    entity-scan:
+      packages:
+        - com.hostels.beans
+
+datasources:
+  default:
+    url: ${DB_ENDPOINT}
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    maximum-pool-size: 10
+    allow-pool-suspension: true
+    dialect: MYSQL
