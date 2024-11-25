@@ -22,8 +22,12 @@ public class Reservations {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long reservationId;
-    Long userId;
-    Long hostelId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "userId", nullable = false)
+    Users user;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "hostelId", nullable = false)
+    Hostels hostel;
     @Column(columnDefinition = "DATETIME")
     LocalDateTime checkInTime;
     @Column(columnDefinition = "DATETIME")
@@ -31,4 +35,17 @@ public class Reservations {
     @Column(precision = 15, scale = 2)
     BigDecimal amount;
     String reservationCode;
+
+    @Override
+    public String toString() {
+        return "Reservations{" +
+            "reservationId=" + reservationId +
+            ", hostelId=" + hostel +
+            ", user=" + user +
+            ", checkInTime=" + checkInTime +
+            ", checkOutTime=" + checkOutTime +
+            ", amount=" + amount +
+            ", reservationCode='" + reservationCode + '\'' +
+            '}';
+    }
 }
